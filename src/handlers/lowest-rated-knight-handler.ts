@@ -2,30 +2,39 @@ import getTotalParticipantsCount from "./total-participants-handler";
 import getUserInfo from "./user-info-handler";
 
 const getLowestRatedKnightUserInfo = async () => {
-  console.log(`Searching For Lowest Rated Knight.`);
+  console.log(
+    `================================== KNIGHT SEARCH BEGIN ================================================`
+  );
   let lowRank = 1;
   let highRank = await getTotalParticipantsCount();
 
   let bestUsername = "";
-  let bestRating = null;
-  let bestGlobalRanking = null;
+  let bestRating = 9999999;
+  let bestGlobalRanking = 0;
 
   let iterations = 0;
 
   while (lowRank <= highRank) {
     const midRank = Math.floor((lowRank + highRank) / 2);
     iterations++;
+
+    console.log(
+      `\n------------------------Iteration : ${iterations}--------------------------------`
+    );
+    console.log(`Low, High : ${lowRank}, ${highRank}`);
     try {
       const userData = await getUserInfo(midRank);
       const { username, userBadge, userRating, userGlobalRanking } = userData;
 
       console.log(`low, high : ${lowRank}, ${highRank}`);
-
+      console.log(JSON.stringify(userData));
       if (userBadge === "Knight" || userBadge === "Guardian") {
-        bestUsername = username;
-        bestRating = userRating;
+        if (userRating <= bestRating) {
+          bestUsername = username;
+          bestRating = userRating;
+          bestGlobalRanking = userGlobalRanking;
+        }
         lowRank = midRank + 1;
-        bestGlobalRanking = userGlobalRanking;
       } else {
         highRank = midRank - 1;
       }
@@ -45,6 +54,12 @@ const getLowestRatedKnightUserInfo = async () => {
     userGlobalRanking: bestGlobalRanking,
   };
 
+  console.log(`total iterations for Knight : ${iterations}`);
+  console.log(`Best Knight Info ${JSON.stringify(data)}`);
+
+  console.log(
+    `================================== KNIGHT SEARCH END ================================================`
+  );
   return data;
 };
 

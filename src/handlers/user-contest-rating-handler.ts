@@ -24,10 +24,7 @@ const getUserRating = async (username) => {
       }),
     });
 
-    console.log(`Fetching Rating Data for username: ${username}`);
-
     const data = await response.json();
-    console.log(`Fetched Rating Data:`, data);
 
     if (data.errors && data.errors.length > 0) {
       console.error(`Error fetching user rating: ${data.errors[0].message}`);
@@ -40,8 +37,6 @@ const getUserRating = async (username) => {
     }
 
     const rating = data.data.userContestRanking.rating;
-
-    console.log(`${username} has a rating of ${rating}`);
 
     return rating;
   } catch (error) {

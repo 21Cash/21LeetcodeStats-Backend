@@ -2,28 +2,37 @@ import getTotalParticipantsCount from "./total-participants-handler";
 import getUserInfo from "./user-info-handler";
 
 const getLowestRatedGuardianUserInfo = async () => {
-  console.log(`Searching For Lowest Rated Guardian.`);
+  console.log(
+    `================================== GUARDIAN SEARCH BEGIN ================================================`
+  );
   let lowRank = 1;
   let highRank = await getTotalParticipantsCount();
 
   let bestUsername = "";
-  let bestRating = null;
+  let bestRating = 999999;
   let bestGlobalRanking = null;
 
   let iterations = 0;
 
   while (lowRank <= highRank) {
     const midRank = Math.floor((lowRank + highRank) / 2);
+
+    console.log(
+      `\n------------------------Iteration : ${iterations}--------------------------------`
+    );
+    console.log(`Low, High : ${lowRank}, ${highRank}`);
     iterations++;
     try {
       const userData = await getUserInfo(midRank);
       const { username, userBadge, userRating, userGlobalRanking } = userData;
-
+      console.log(JSON.stringify(userData));
       if (userBadge === "Guardian") {
-        bestUsername = username;
-        bestRating = userRating;
+        if (userRating <= bestRating) {
+          bestUsername = username;
+          bestRating = userRating;
+          bestGlobalRanking = userGlobalRanking;
+        }
         lowRank = midRank + 1;
-        bestGlobalRanking = userGlobalRanking;
       } else {
         highRank = midRank - 1;
       }
@@ -41,8 +50,13 @@ const getLowestRatedGuardianUserInfo = async () => {
     userGlobalRanking: bestGlobalRanking,
   };
 
-  console.log(`total iterations : ${iterations}`);
+  console.log(`total iterations for guardian : ${iterations}`);
 
+  console.log(`Best Guardian Info ${JSON.stringify(data)}`);
+
+  console.log(
+    `================================== GUARDIAN SEARCH END ================================================`
+  );
   return data;
 };
 

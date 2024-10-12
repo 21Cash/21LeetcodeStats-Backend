@@ -29,8 +29,6 @@ const getUserContestBadge = async (username) => {
       }),
     });
 
-    console.log(`Fetching Data for username: ${username}`);
-
     const data = await response.json();
     if (!data || !data.data || !data.data.matchedUser) {
       console.error("No matched user found");
@@ -44,9 +42,6 @@ const getUserContestBadge = async (username) => {
     }
 
     const rating = await getUserRating(username);
-    console.log(
-      `${username} has a badge of ${badge.name} and a rating of ${rating}`
-    );
 
     return {
       badgeName: badge.name,
