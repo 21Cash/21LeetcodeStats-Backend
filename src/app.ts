@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import rootRoutes from "./routes/index";
+import rootRoutes from "./index";
 import totalParticipantRoute from "./routes/total-participants";
 import usernameByRankRoute from "./routes/username-by-rank";
 import userInfoRoute from "./routes/user-info";

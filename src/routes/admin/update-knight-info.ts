@@ -10,8 +10,27 @@ import {
 import { db } from "../../app";
 import getLowestRatedGuardianUserInfo from "../../handlers/lowest-rated-guardian-handler";
 import getLowestRatedKnightUserInfo from "../../handlers/lowest-rated-knight-handler";
+import revalidateFrontendRoute from "../../handlers/trigger-frontend-revalidation";
 
 const router = Router();
+
+const updateKnightInfoOnDatabase = async () => {
+  const knightData = await getLowestRatedKnightUserInfo();
+  const knightInfoRef = doc(db, "KnightStats", "stats");
+
+  // Update the lastUpdated field in the KnightStats collection on firestore
+  await setDoc(knightInfoRef, {
+    ...knightData,
+    lastUpdated: serverTimestamp(),
+  });
+
+  console.log("Knight Data Updated Successfully.");
+  console.log("Knight Data: ", knightData);
+
+  // Revalidate the frontend route
+  revalidateFrontendRoute("/api/knight-stats");
+  revalidateFrontendRoute("/");
+};
 
 router.get("/", async (req: Request, res: Response) => {
   try {
@@ -23,16 +42,7 @@ router.get("/", async (req: Request, res: Response) => {
       return;
     }
 
-    const knightData = await getLowestRatedKnightUserInfo();
-    const knightInfoRef = doc(db, "KnightStats", "stats");
-
-    await setDoc(knightInfoRef, {
-      ...knightData,
-      lastUpdated: serverTimestamp(),
-    });
-    res
-      .status(200)
-      .send({ knightData, msg: "Knight Data Updated Successfully." });
+    res.status(200).send("Knight Data Update Initiated.");
   } catch (err) {
     res.status(500).send(`Internal Server Error 500, ${err}`);
   }

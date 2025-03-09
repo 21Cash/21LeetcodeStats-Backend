@@ -10,8 +10,27 @@ import {
 } from "firebase/firestore";
 import { db } from "../../app";
 import getLowestRatedGuardianUserInfo from "../../handlers/lowest-rated-guardian-handler";
+import revalidateFrontendRoute from "../../handlers/trigger-frontend-revalidation";
 
 const router = Router();
+
+const updateGuardianInfoOnDatabase = async () => {
+  const guardianData = await getLowestRatedGuardianUserInfo();
+  const guardianInfoRef = doc(db, "GuardianStats", "stats");
+
+  // Update the lastUpdated field in the GuardianStats collection on firestore
+  await setDoc(guardianInfoRef, {
+    ...guardianData,
+    lastUpdated: serverTimestamp(),
+  });
+
+  console.log("Guardian Data Updated Successfully.");
+  console.log("Guardian Data: ", guardianData);
+
+  // Revalidate the frontend route
+  revalidateFrontendRoute("/api/guardian-stats");
+  revalidateFrontendRoute("/");
+};
 
 router.get("/", async (req: Request, res: Response) => {
   try {
@@ -23,17 +42,8 @@ router.get("/", async (req: Request, res: Response) => {
       return;
     }
 
-    const guardianData = await getLowestRatedGuardianUserInfo();
-    const guardianInfoRef = doc(db, "GuardianStats", "stats");
-
-    await setDoc(guardianInfoRef, {
-      ...guardianData,
-      lastUpdated: serverTimestamp(),
-    });
-
-    res
-      .status(200)
-      .send({ guardianData, msg: "Guardian Data Updated Successfully." });
+    updateGuardianInfoOnDatabase();
+    res.status(200).send("Guardian Data Update Initiated");
   } catch (err) {
     res.status(500).send(`Internal Server Error 500, ${err}`);
   }

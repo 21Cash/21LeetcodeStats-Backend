@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import revalidateFrontendRoute from "./handlers/trigger-frontend-revalidation";
 
 const router = Router();
 
