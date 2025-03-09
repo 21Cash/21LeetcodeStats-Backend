@@ -41,7 +41,7 @@ router.get("/", async (req: Request, res: Response) => {
       res.status(403).send("Secret Key is Incorrect. Access Denied");
       return;
     }
-
+    updateKnightInfoOnDatabase();
     res.status(200).send("Knight Data Update Initiated.");
   } catch (err) {
     res.status(500).send(`Internal Server Error 500, ${err}`);
